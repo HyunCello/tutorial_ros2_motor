@@ -97,7 +97,7 @@ private:
   rclcpp::Subscription<std_msgs::msg::Int64MultiArray>::SharedPtr subscription_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr left_speed_publisher_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr right_speed_publisher_;
-
+  void CalculateSpeed();
   size_t count_;
 };
 
