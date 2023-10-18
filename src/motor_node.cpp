@@ -472,8 +472,8 @@ void CalculateSpeed()
     right_msg.data = speed_value2;
 
     // 속도 값을 publish
-    left_speed_publisher->publish(left_msg);
-    right_speed_publisher->publish(right_msg);
+    left_speed_publisher_->publish(left_msg);
+    right_speed_publisher_->publish(right_msg);
 }
 
 void InfoMotors()
@@ -500,8 +500,8 @@ RosCommunicator::RosCommunicator()
   subscription_ = this->create_subscription<std_msgs::msg::Int64MultiArray>(
       "/tutorial/teleop", 10, std::bind(&RosCommunicator::TeleopCallback, this, _1));
   // Publishers 초기화
-  left_speed_publisher = this->create_publisher<std_msgs::msg::Float32>("/mobile/velR", 10);
-  right_speed_publisher = this->create_publisher<std_msgs::msg::Float32>("/mobile/velL", 10);
+  left_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velR", 10);
+  right_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velL", 10);
 }
 
 void RosCommunicator::TimerCallback()
