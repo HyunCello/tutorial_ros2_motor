@@ -452,21 +452,28 @@ void CalculateSpeed()
 {
 
     // 왼쪽 모터 속도 계산
-    if (current_direction1 == "CW") {
-        speed_value1 = rpm_value1 * wheel_radius * 60;
+    if (current_direction1 == 1) {
+        speed_value1 = rpm_value1 * wheel_round / 60 / 100;
     } else {
-        speed_value1 = -rpm_value1 * wheel_radius * 60;
+        speed_value1 = -rpm_value1 * wheel_round / 60 / 100;
     }
 
     // 오른쪽 모터 속도 계산
-    if (current_direction2 == "CCW") {
-        speed_value2 = rpm_value2 * wheel_radius * 60;
+    if (current_direction2 == 0) {
+        speed_value2 = rpm_value2 * wheel_round / 60 / 100;
     } else {
-        speed_value2 = -rpm_value2 * wheel_radius * 60;
-    }
-  // speed_value1 = rpm_value1 * wheel_radius * 60;
-  // speed_value2 = rpm_value2 * wheel_radius * 60;
-  
+        speed_value2 = -rpm_value2 * wheel_round / 60 / 100;
+
+    // Float32 메시지 생성 및 값을 할당
+    std_msgs::msg::Float32 left_msg;
+    std_msgs::msg::Float32 right_msg;
+
+    left_msg.data = speed_value1;
+    right_msg.data = speed_value2;
+
+    // 속도 값을 publish
+    left_speed_publisher->publish(left_msg);
+    right_speed_publisher->publish(right_msg);
 }
 
 void InfoMotors()
@@ -492,6 +499,9 @@ RosCommunicator::RosCommunicator()
       100ms, std::bind(&RosCommunicator::TimerCallback, this));
   subscription_ = this->create_subscription<std_msgs::msg::Int64MultiArray>(
       "/tutorial/teleop", 10, std::bind(&RosCommunicator::TeleopCallback, this, _1));
+  // Publishers 초기화
+  left_speed_publisher = this->create_publisher<std_msgs::msg::Float32>("/mobile/velR", 10);
+  right_speed_publisher = this->create_publisher<std_msgs::msg::Float32>("/mobile/velL", 10);
 }
 
 void RosCommunicator::TimerCallback()
