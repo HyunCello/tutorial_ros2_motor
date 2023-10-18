@@ -520,7 +520,7 @@ void RosCommunicator::CalculateSpeed()
         speed_value2 = rpm_value2 * wheel_round / 60 / 100;
     } else {
         speed_value2 = -rpm_value2 * wheel_round / 60 / 100;
-
+    }
     // Float32 메시지 생성 및 값을 할당
     std_msgs::msg::Float32 left_msg;
     std_msgs::msg::Float32 right_msg;
