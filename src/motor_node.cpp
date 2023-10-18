@@ -448,9 +448,66 @@ void CalculateRpm()
   speed_count2 = 0;
 }
 
-void CalculateSpeed()
-{
 
+
+void InfoMotors()
+{
+  CalculateRpm();
+  printf("\033[2J");
+  printf("\033[1;1H");
+  printf("Encoder1A : %5d    ||  Encoder2A : %5d\n", encoder_count_1A, encoder_count_2A);
+  printf("Encoder1B : %5d    ||  Encoder2B : %5d\n", encoder_count_1B, encoder_count_2B);
+  printf("RPM1 : %10.0f    ||  RPM2 : %10.0f\n", rpm_value1, rpm_value2);
+  printf("PWM1 : %10.0d    ||  PWM2 : %10.0d\n", current_pwm1, current_pwm2);
+  printf("DIR1 :%11s    ||  DIR2 :%11s\n", current_direction1 ? "CW" : "CCW", current_direction2 ? "CW" : "CCW");
+  printf("Speed1 : %10.0f    ||  Speed2 : %10.0f\n", speed_value1, speed_value2);
+  printf("ACC  :%11.0d\n", acceleration);
+  
+  printf("\n");
+}
+
+RosCommunicator::RosCommunicator()
+    : Node("tutorial_ros2_motor"), count_(0)
+{
+  timer_ = this->create_wall_timer(
+      10ms, std::bind(&RosCommunicator::TimerCallback, this));
+  subscription_ = this->create_subscription<std_msgs::msg::Int64MultiArray>(
+      "/tutorial/teleop", 10, std::bind(&RosCommunicator::TeleopCallback, this, _1));
+  // Publishers 초기화
+  left_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velR", 10);
+  right_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velL", 10);
+}
+
+void RosCommunicator::TimerCallback()
+{
+  // MotorController(1, true, 100);
+  // MotorController(2, true, 100);
+  // AccelController(1, true, 100);
+  // AccelController(2, true, 100);
+  // SwitchTurn(100, 100);
+  // ThetaTurnDistanceGo(180,100,30,110);
+  InfoMotors();
+  CalculateSpeed();
+}
+
+void RosCommunicator::TeleopCallback(const std_msgs::msg::Int64MultiArray::SharedPtr msg)
+{
+  bool tmp_dir1, tmp_dir2;
+  if (msg->data[0] == 0)
+    tmp_dir1 = true;
+  else
+    tmp_dir1 = false;
+  if (msg->data[1] == 0)
+    tmp_dir2 = true;
+  else
+    tmp_dir2 = false;
+
+  AccelController(1, tmp_dir1, msg->data[2]);
+  AccelController(2, tmp_dir2, msg->data[3]);
+}
+
+void RosCommunicator::CalculateSpeed()
+{
     // 왼쪽 모터 속도 계산
     if (current_direction1 == 1) {
         speed_value1 = rpm_value1 * wheel_round / 60 / 100;
@@ -474,61 +531,6 @@ void CalculateSpeed()
     // 속도 값을 publish
     left_speed_publisher_->publish(left_msg);
     right_speed_publisher_->publish(right_msg);
-}
-
-void InfoMotors()
-{
-  CalculateRpm();
-  printf("\033[2J");
-  printf("\033[1;1H");
-  printf("Encoder1A : %5d    ||  Encoder2A : %5d\n", encoder_count_1A, encoder_count_2A);
-  printf("Encoder1B : %5d    ||  Encoder2B : %5d\n", encoder_count_1B, encoder_count_2B);
-  printf("RPM1 : %10.0f    ||  RPM2 : %10.0f\n", rpm_value1, rpm_value2);
-  printf("PWM1 : %10.0d    ||  PWM2 : %10.0d\n", current_pwm1, current_pwm2);
-  printf("DIR1 :%11s    ||  DIR2 :%11s\n", current_direction1 ? "CW" : "CCW", current_direction2 ? "CW" : "CCW");
-  printf("Speed1 : %10.0f    ||  Speed2 : %10.0f\n", speed_value1, speed_value2);
-  printf("ACC  :%11.0d\n", acceleration);
-  
-  printf("\n");
-}
-
-RosCommunicator::RosCommunicator()
-    : Node("tutorial_ros2_motor"), count_(0)
-{
-  timer_ = this->create_wall_timer(
-      100ms, std::bind(&RosCommunicator::TimerCallback, this));
-  subscription_ = this->create_subscription<std_msgs::msg::Int64MultiArray>(
-      "/tutorial/teleop", 10, std::bind(&RosCommunicator::TeleopCallback, this, _1));
-  // Publishers 초기화
-  left_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velR", 10);
-  right_speed_publisher_ = this->create_publisher<std_msgs::msg::Float32>("/mobile/velL", 10);
-}
-
-void RosCommunicator::TimerCallback()
-{
-  // MotorController(1, true, 100);
-  // MotorController(2, true, 100);
-  // AccelController(1, true, 100);
-  // AccelController(2, true, 100);
-  // SwitchTurn(100, 100);
-  // ThetaTurnDistanceGo(180,100,30,110);
-  InfoMotors();
-}
-
-void RosCommunicator::TeleopCallback(const std_msgs::msg::Int64MultiArray::SharedPtr msg)
-{
-  bool tmp_dir1, tmp_dir2;
-  if (msg->data[0] == 0)
-    tmp_dir1 = true;
-  else
-    tmp_dir1 = false;
-  if (msg->data[1] == 0)
-    tmp_dir2 = true;
-  else
-    tmp_dir2 = false;
-
-  AccelController(1, tmp_dir1, msg->data[2]);
-  AccelController(2, tmp_dir2, msg->data[3]);
 }
 
 int main(int argc, char **argv)
