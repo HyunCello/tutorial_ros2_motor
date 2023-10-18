@@ -79,6 +79,9 @@ void ThetaTurnDistanceGo(double theta, int turn_pwm, double distance, int go_pwm
 int LimitPwm(int pwm);
 double rpm_value1;
 double rpm_value2;
+double speed_value1;
+double speed_value2;
+
 void CalculateRpm();
 void InfoMotors();
 class RosCommunicator : public rclcpp::Node
