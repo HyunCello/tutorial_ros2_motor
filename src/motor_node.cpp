@@ -470,7 +470,7 @@ RosCommunicator::RosCommunicator()
     : Node("tutorial_ros2_motor"), count_(0)
 {
   timer_ = this->create_wall_timer(
-      10ms, std::bind(&RosCommunicator::TimerCallback, this));
+      50ms, std::bind(&RosCommunicator::TimerCallback, this));
   subscription_ = this->create_subscription<std_msgs::msg::Int64MultiArray>(
       "/tutorial/teleop", 10, std::bind(&RosCommunicator::TeleopCallback, this, _1));
   // Publishers 초기화
