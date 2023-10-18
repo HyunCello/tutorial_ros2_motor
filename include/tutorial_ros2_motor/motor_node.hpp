@@ -3,6 +3,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/int64_multi_array.hpp"
+#include <std_msgs/msg/float32.hpp>
 #include <pigpiod_if2.h>
 #include <fstream>
 
@@ -94,6 +95,9 @@ private:
   void TeleopCallback(const std_msgs::msg::Int64MultiArray::SharedPtr msg);
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Subscription<std_msgs::msg::Int64MultiArray>::SharedPtr subscription_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr left_speed_publisher_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr right_speed_publisher_;
+
   size_t count_;
 };
 
